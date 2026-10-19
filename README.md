@@ -1,17 +1,47 @@
-# shared_expenses
+# Спільні витрати (shared_expenses)
 
-A new Flutter project.
+Кросплатформний Flutter-застосунок для обліку витрат групи користувачів
+і визначення частки кожного учасника (дисципліна «Кросплатформне
+програмування», варіант 25).
 
-## Getting Started
+## Стан розробки
 
-This project is a starting point for a Flutter application.
+| ЛР | Зміст |
+|----|-------|
+| 1 | Створення Flutter-проєкту |
+| 2 | Специфікація вимог і прототип інтерфейсу (поза репозиторієм) |
+| 3 | Базова структура застосунку та основні екрани без бізнес-логіки |
 
-A few resources to get you started if this is your first Flutter project:
+Реалізовані екрани: вхід, реєстрація, відновлення пароля, головний екран,
+групи, витрати, профіль, редагування профілю, зміна пароля. Дані поки
+hardcoded (`lib/data/mock_data.dart`), інтеграцію з Firebase буде додано
+в наступних роботах.
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Структура `lib/`
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```
+lib/
+├── main.dart            точка входу
+├── app.dart             MaterialApp: теми та маршрути
+├── core/                спільний код
+│   ├── constants/       відступи
+│   ├── routes/          іменовані маршрути
+│   ├── theme/           кольори та теми Material 3
+│   ├── utils/           форматування, валідатори, SnackBar
+│   └── widgets/         перевикористовувані віджети
+├── data/                моделі та тестові дані
+└── features/            екрани за функціональними розділами
+    ├── auth/
+    ├── home/
+    ├── groups/
+    ├── expenses/
+    ├── profile/
+    └── shell/           нижня навігація
+```
+
+## Запуск
+
+```
+flutter pub get
+flutter run
+```
