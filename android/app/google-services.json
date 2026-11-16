@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "636609656422",
+    "project_id": "shared-expenses-500ce",
+    "storage_bucket": "shared-expenses-500ce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636609656422:android:1f82a64933da124e205fa7",
+        "android_client_info": {
+          "package_name": "com.example.shared_expenses"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFZ86tkwwKDtOgwG3lVx4-LhLUAuOIg4Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

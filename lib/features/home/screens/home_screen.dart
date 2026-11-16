@@ -4,6 +4,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/utils/snackbars.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../../data/mock_data.dart';
+import '../../auth/widgets/current_user_builder.dart';
 import '../../shell/main_shell.dart';
 import '../widgets/balance_summary_card.dart';
 
@@ -15,17 +16,18 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const user = MockData.currentUser;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Головна'),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.md),
-            child: UserAvatar(
-              initials: user.initials,
-              onTap: () => onOpenTab(MainTab.profile),
+          CurrentUserBuilder(
+            builder: (context, user) => Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.md),
+              child: UserAvatar(
+                initials: user.initials,
+                photoUrl: user.photoUrl,
+                onTap: () => onOpenTab(MainTab.profile),
+              ),
             ),
           ),
         ],

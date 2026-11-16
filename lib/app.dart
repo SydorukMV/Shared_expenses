@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'core/di/app_scope.dart';
 import 'core/routes/app_routes.dart';
 import 'core/theme/app_theme.dart';
 
@@ -9,12 +10,13 @@ class SharedExpensesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Спільні витрати',
+      title: 'Shared Expenses',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,
-      initialRoute: AppRoutes.login,
+      navigatorObservers: [AppScope.of(context).analytics.observer],
+      initialRoute: AppRoutes.root,
       routes: AppRoutes.routes,
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/app_spacing.dart';
+import '../../core/di/app_scope.dart';
 import '../expenses/screens/expenses_screen.dart';
 import '../groups/screens/groups_screen.dart';
 import '../home/screens/home_screen.dart';
@@ -18,7 +19,10 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   MainTab _currentTab = MainTab.home;
 
-  void _openTab(MainTab tab) => setState(() => _currentTab = tab);
+  void _openTab(MainTab tab) {
+    if (tab != _currentTab) AppScope.of(context).analytics.logScreen(tab.name);
+    setState(() => _currentTab = tab);
+  }
 
   @override
   Widget build(BuildContext context) {

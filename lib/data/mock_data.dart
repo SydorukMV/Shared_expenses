@@ -1,14 +1,8 @@
-import 'models/app_user.dart';
 import 'models/expense.dart';
 import 'models/expense_category.dart';
 import 'models/expense_group.dart';
 
 abstract final class MockData {
-  static const currentUser = AppUser(
-    fullName: 'Олена Коваль',
-    email: 'olena.koval@example.com',
-  );
-
   static const owedToMe = 900;
   static const iOwe = 350;
 

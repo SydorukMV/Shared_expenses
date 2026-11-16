@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/di/app_scope.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/snackbars.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../../data/repositories/auth_failure.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -16,11 +18,14 @@ class ChangePasswordScreen extends StatefulWidget {
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _currentPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
+    _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmController.dispose();
     super.dispose();
@@ -30,10 +35,37 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       _confirmController.text.isNotEmpty &&
       _confirmController.text == _newPasswordController.text;
 
-  void _changePassword() {
-    if (!_formKey.currentState!.validate()) return;
-    showAppSnackBar(context, 'Пароль змінено');
-    Navigator.of(context).pop();
+  String? _validateNewPassword(String? value) {
+    return Validators.password(value) ??
+        Validators.differs(
+          _currentPasswordController,
+          'Новий пароль має відрізнятися від поточного',
+        )(value);
+  }
+
+  Future<void> _changePassword() async {
+    if (_isLoading || !_formKey.currentState!.validate()) return;
+    final scope = AppScope.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    setState(() => _isLoading = true);
+    try {
+      await scope.profileRepository.changePassword(
+        currentPassword: _currentPasswordController.text,
+        newPassword: _newPasswordController.text,
+      );
+      scope.analytics.logPasswordChanged();
+      showMessengerSnackBar(messenger, 'Пароль змінено');
+      navigator.pop();
+    } on AuthFailure catch (failure) {
+      final message = failure.requiresRecentLogin
+          ? 'Сеанс застарів. Вийдіть і увійдіть повторно, щоб змінити пароль'
+          : 'Не вдалося змінити пароль. ${failure.message}';
+      showMessengerSnackBar(messenger, message, isError: true);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -54,6 +86,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             ),
             const SizedBox(height: AppSpacing.lg),
             AppTextField(
+              controller: _currentPasswordController,
               label: 'Поточний пароль',
               prefixIcon: Icons.lock,
               isPassword: true,
@@ -67,7 +100,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               prefixIcon: Icons.lock,
               isPassword: true,
               autofillHints: const [AutofillHints.newPassword],
-              validator: Validators.password,
+              validator: _validateNewPassword,
               onChanged: (_) => setState(() {}),
             ),
             Padding(
@@ -98,7 +131,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: AppSpacing.xl),
-            PrimaryButton(label: 'Змінити пароль', onPressed: _changePassword),
+            PrimaryButton(
+              label: 'Змінити пароль',
+              isLoading: _isLoading,
+              onPressed: _changePassword,
+            ),
             const SizedBox(height: AppSpacing.sm),
             TextButton(
               onPressed: () =>

@@ -13,7 +13,7 @@ class PasswordStrengthIndicator extends StatelessWidget {
     var score = 1;
     if (password.length >= 8) score++;
     if (RegExp(r'\d').hasMatch(password) &&
-        RegExp(r'[^\d\s]').hasMatch(password)) {
+        RegExp(r'\p{L}', unicode: true).hasMatch(password)) {
       score++;
     }
     if (password.length >= 12 ||

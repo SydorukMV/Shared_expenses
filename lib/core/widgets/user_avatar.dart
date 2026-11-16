@@ -4,12 +4,14 @@ class UserAvatar extends StatelessWidget {
   const UserAvatar({
     super.key,
     required this.initials,
+    this.photoUrl,
     this.radius = 20,
     this.showCameraBadge = false,
     this.onTap,
   });
 
   final String initials;
+  final String? photoUrl;
   final double radius;
   final bool showCameraBadge;
   final VoidCallback? onTap;
@@ -17,11 +19,14 @@ class UserAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final url = photoUrl;
 
     final avatar = CircleAvatar(
       radius: radius,
       backgroundColor: colors.primary,
       foregroundColor: colors.onPrimary,
+      foregroundImage: url == null ? null : NetworkImage(url),
+      onForegroundImageError: url == null ? null : (_, _) {},
       child: Text(
         initials,
         style: TextStyle(fontSize: radius * 0.75, fontWeight: FontWeight.w500),

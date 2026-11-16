@@ -1,11 +1,33 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/di/app_scope.dart';
 import '../../../core/utils/snackbars.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../../data/repositories/auth_failure.dart';
 
-class ResetLinkSentScreen extends StatelessWidget {
+class ResetLinkSentScreen extends StatefulWidget {
   const ResetLinkSentScreen({super.key});
+
+  @override
+  State<ResetLinkSentScreen> createState() => _ResetLinkSentScreenState();
+}
+
+class _ResetLinkSentScreenState extends State<ResetLinkSentScreen> {
+  bool _isSending = false;
+
+  Future<void> _resend(String email) async {
+    if (_isSending) return;
+    setState(() => _isSending = true);
+    try {
+      await AppScope.of(context).authRepository.sendPasswordResetEmail(email);
+      if (mounted) showAppSnackBar(context, 'Лист надіслано ще раз');
+    } on AuthFailure catch (failure) {
+      if (mounted) showAppSnackBar(context, failure.message, isError: true);
+    } finally {
+      if (mounted) setState(() => _isSending = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,8 +89,8 @@ class ResetLinkSentScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           TextButton(
-            onPressed: () => showAppSnackBar(context, 'Лист надіслано ще раз'),
-            child: const Text('Надіслати ще раз'),
+            onPressed: _isSending ? null : () => _resend(email),
+            child: Text(_isSending ? 'Надсилання…' : 'Надіслати ще раз'),
           ),
         ],
       ),

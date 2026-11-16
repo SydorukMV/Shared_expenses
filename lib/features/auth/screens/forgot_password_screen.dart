@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/di/app_scope.dart';
 import '../../../core/routes/app_routes.dart';
+import '../../../core/utils/snackbars.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../../data/repositories/auth_failure.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -15,6 +18,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -22,12 +26,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _sendLink() {
-    if (!_formKey.currentState!.validate()) return;
-    Navigator.of(context).pushReplacementNamed(
-      AppRoutes.resetLinkSent,
-      arguments: _emailController.text.trim(),
-    );
+  Future<void> _sendLink() async {
+    if (_isLoading || !_formKey.currentState!.validate()) return;
+    final scope = AppScope.of(context);
+    final email = _emailController.text.trim();
+
+    setState(() => _isLoading = true);
+    try {
+      await scope.authRepository.sendPasswordResetEmail(email);
+      scope.analytics.logPasswordResetRequested();
+      if (!mounted) return;
+      Navigator.of(context)
+          .pushReplacementNamed(AppRoutes.resetLinkSent, arguments: email);
+    } on AuthFailure catch (failure) {
+      if (mounted) showAppSnackBar(context, failure.message, isError: true);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -66,7 +81,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               validator: Validators.email,
             ),
             const SizedBox(height: AppSpacing.lg),
-            PrimaryButton(label: 'Надіслати посилання', onPressed: _sendLink),
+            PrimaryButton(
+              label: 'Надіслати посилання',
+              isLoading: _isLoading,
+              onPressed: _sendLink,
+            ),
             const SizedBox(height: AppSpacing.sm),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
